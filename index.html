@@ -109,6 +109,58 @@ option[value="feriado"]{
     }
 }
 
+#usuario{
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom:15px;
+}
+body{
+    font-family:Arial,sans-serif;
+    margin:10px;
+    overflow-x:auto;
+    background:#f4f7fa;
+    margin:10px;
+    overflow-x:auto;
+}
+table{
+    width:100%;
+    min-width:750px;
+    background:white;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+input[type="time"]{
+    width:100%;
+    min-width:90px;
+}
+button{
+    padding:10px;
+    border:none;
+    border-radius:8px;
+}
+#resumen{
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+    background:white;
+}
+@media (max-width:768px){
+
+    h1{
+        font-size:22px;
+    }
+
+    #usuario{
+        justify-content:center;
+    }
+
+    #usuario > div{
+        width:100%;
+    }
+
+    button{
+        width:100%;
+        margin-top:5px;
+    }
+}
 </style>
 </head>
 
@@ -135,10 +187,7 @@ option[value="feriado"]{
 <label>Año:</label>
 <input type="number" id="anio" value="2026">
 
-<button onclick="exportarJSON()">Guardar en Archivo</button>
-<button onclick="document.getElementById('archivoJson').click()">Cargar desde un Archivo</button>
-<input type="file" id="archivoJson" accept=".json" style="display:none" onchange="importarJSON(event)">
-<button onclick="borrarDatos()">Limpiar Datos</button>
+<div id="usuario"></div>
 
 <table id="tabla">
 
@@ -182,57 +231,12 @@ function obtenerPeriodo(){
     return `${anio}-${mes}`;
 }
 
-function importarJSON(event){
-
-    const archivo =
-        event.target.files[0];
-
-    if(!archivo){
-        return;
-    }
-
-    const lector =
-        new FileReader();
-
-    lector.onload = function(e){
-
-        const bd =
-            JSON.parse(
-                e.target.result
-            );
-
-        localStorage.setItem(
-            "controlHorarioBD",
-            JSON.stringify(bd)
-        );
-
-        generarMes();
-        cargarPeriodo();
-    };
-
-    lector.readAsText(archivo);
-}
-
-function obtenerBaseDatos(){
-
-    return JSON.parse(
-        localStorage.getItem(
-            "controlHorarioBD"
-        ) || "{}"
-    );
-}
-
 function guardarPeriodo(){
 
     if(!periodoActual){
         periodoActual =
             obtenerPeriodo();
     }
-
-    const bd =
-        obtenerBaseDatos();
-
-    bd[periodoActual] = [];
 
     document
         .querySelectorAll(
@@ -260,18 +264,10 @@ function guardarPeriodo(){
                     fila.querySelector(".real")
                         .value
             });
-        });
-
-    localStorage.setItem(
-        "controlHorarioBD",
-        JSON.stringify(bd)
-    );
+        });    
 }
 
 function cargarPeriodo(){
-
-    const bd =
-        obtenerBaseDatos();
 
     const periodo =
         obtenerPeriodo();
@@ -331,11 +327,6 @@ async function cambiarPeriodo(){
 }
 
 function borrarDatos(){
-
-    localStorage.removeItem(
-        "controlHorarioBD"
-    );
-
     generarMes();
 
     alert(
@@ -844,39 +835,11 @@ document.addEventListener(
     }
 );
 
-function exportarJSON(){
-
-    const bd =
-        obtenerBaseDatos();
-
-    const blob =
-        new Blob(
-            [
-                JSON.stringify(
-                    bd,
-                    null,
-                    2
-                )
-            ],
-            {
-                type:
-                "application/json"
-            }
-        );
-
-    const a =
-        document.createElement("a");
-
-    a.href =
-        URL.createObjectURL(blob);
-
-    a.download =
-        "control_horario.json";
-
-    a.click();
-}
-
 async function guardarPeriodoFirebase(){
+
+     if(!window.usuarioActual){
+        return;
+    }
 
     try{
 
@@ -909,6 +872,8 @@ async function guardarPeriodoFirebase(){
 
             window.doc(
                 window.db,
+                "usuarios",
+                window.usuarioActual.uid,
                 "periodos",
                 periodo
             ),
@@ -940,6 +905,10 @@ async function guardarPeriodoFirebase(){
 
 async function cargarPeriodoFirebase(){
 
+    if(!window.usuarioActual){
+        return;
+    }
+
     try{
 
         const periodo =
@@ -950,6 +919,8 @@ async function cargarPeriodoFirebase(){
 
                 window.doc(
                     window.db,
+                    "usuarios",
+                    window.usuarioActual.uid,
                     "periodos",
                     periodo
                 )
@@ -1040,56 +1011,137 @@ periodoActual = obtenerPeriodo();
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
 import {
-
     getFirestore,
-
     doc,
-
     setDoc,
-
     getDoc,
-
     deleteDoc
-
 }
 
 from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
- 
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 const firebaseConfig = {
-
     apiKey: "AIzaSyCATIddYi740alPZN2pclQC3kdprVIlRfs",
-
     authDomain: "control-horario-fef24.firebaseapp.com",
-
     projectId: "control-horario-fef24",
-
     storageBucket: "control-horario-fef24.firebasestorage.app",
-
     messagingSenderId: "280269536972",
-
     appId: "1:280269536972:web:9f305847ef3506af4d8c69",
-
     measurementId: "G-9D9EY1YDHG"
-
 };
 
 const app = initializeApp(firebaseConfig);
-
+const auth = getAuth(app);
 const db = getFirestore(app);
 
 window.db = db;
-
 window.doc = doc;
-
 window.setDoc = setDoc;
-
 window.getDoc = getDoc;
-
 window.deleteDoc = deleteDoc;
+window.auth = auth;
 
 console.log("Firebase conectado");
+
+window.GoogleAuthProvider = GoogleAuthProvider;
+window.signInWithPopup = signInWithPopup;
+window.signOut = signOut;
+
+window.loginGoogle = async function(){
+
+    try{
+
+        const provider =
+            new GoogleAuthProvider();
+
+        await signInWithPopup(
+            auth,
+            provider
+        );
+
+    }catch(error){
+
+        console.error(
+            "Error Login:",
+            error
+        );
+
+    }
+
+};
+
+window.logout = async function(){
+
+    try{
+
+        await signOut(auth);
+
+    }catch(error){
+
+        console.error(
+            "Error Logout:",
+            error
+        );
+
+    }
+
+};
+
+onAuthStateChanged(auth, (user)=>{
+
+    if(!user){
+
+        document.getElementById(
+            "usuario"
+        ).innerHTML = `
+            <button onclick="loginGoogle()">
+                Iniciar sesión con Google
+            </button>
+        `;
+
+        return;
+    }
+
+    document.getElementById("usuario").innerHTML = `
+        <div style="
+            display:flex;
+            align-items:center;
+            gap:10px;
+            background:#1976d2;
+            color:white;
+            padding:10px;
+            border-radius:12px;
+        ">
+
+            <img
+                src="${user.photoURL || 'macaco.png'}"
+                width="50"
+                height="50"
+                style="
+                    border-radius:50%;
+                    object-fit:cover;">
+                    ${user.email}
+                </div>
+            </div>
+
+            <button onclick="logout()">
+                Salir
+            </button>
+
+        </div>
+        `;
+    window.usuarioActual = user;
+
+});
 
 if (typeof cargarPeriodoFirebase === "function") {
     cargarPeriodoFirebase();

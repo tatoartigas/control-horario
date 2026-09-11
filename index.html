@@ -316,13 +316,15 @@ function cargarPeriodo(){
     recalcular();
 }
 
-function cambiarPeriodo(){
+async function cambiarPeriodo(){
 
     guardarPeriodo();
 
+    await guardarPeriodoFirebase();
+
     generarMes();
 
-    cargarPeriodo();
+    await cargarPeriodoFirebase();
 
     periodoActual =
         obtenerPeriodo();
@@ -805,7 +807,10 @@ document.addEventListener(
     function(){
 
         recalcular();
+
         guardarPeriodo();
+
+        guardarPeriodoFirebase();
     }
 );
 
@@ -871,6 +876,148 @@ function exportarJSON(){
     a.click();
 }
 
+async function guardarPeriodoFirebase(){
+
+    try{
+
+        const periodo =
+            obtenerPeriodo();
+
+        const registros = [];
+
+        document
+            .querySelectorAll(
+                "#tabla tbody tr:not(.semana)"
+            )
+            .forEach(fila=>{
+
+                registros.push({
+
+                    tipo:
+                        fila.querySelector(".tipoDia").value,
+
+                    entrada:
+                        fila.querySelector(".entrada").value,
+
+                    salida:
+                        fila.querySelector(".real").value
+                });
+
+            });
+
+        await window.setDoc(
+
+            window.doc(
+                window.db,
+                "periodos",
+                periodo
+            ),
+
+            {
+                periodo: periodo,
+                registros: registros,
+                actualizado:
+                    new Date().toISOString()
+            }
+
+        );
+
+        console.log(
+            "Periodo guardado en Firestore:",
+            periodo
+        );
+
+    }catch(error){
+
+        console.error(
+            "Error guardando Firestore:",
+            error
+        );
+
+    }
+
+}
+
+async function cargarPeriodoFirebase(){
+
+    try{
+
+        const periodo =
+            obtenerPeriodo();
+
+        const documento =
+            await window.getDoc(
+
+                window.doc(
+                    window.db,
+                    "periodos",
+                    periodo
+                )
+
+            );
+
+        if(!documento.exists()){
+
+            console.log(
+                "No existe información para",
+                periodo
+            );
+
+            return;
+        }
+
+        const datos =
+            documento.data();
+
+        const filas =
+            document.querySelectorAll(
+                "#tabla tbody tr:not(.semana)"
+            );
+
+        datos.registros.forEach(
+            (registro,index)=>{
+
+                if(!filas[index]){
+                    return;
+                }
+
+                filas[index]
+                    .querySelector(".tipoDia")
+                    .value =
+                    registro.tipo || "";
+
+                filas[index]
+                    .querySelector(".entrada")
+                    .value =
+                    registro.entrada || "";
+
+                filas[index]
+                    .querySelector(".real")
+                    .value =
+                    registro.salida || "";
+
+            }
+        );
+
+        actualizarTipoDia();
+        recalcular();
+
+        console.log(
+            "Periodo cargado desde Firestore:",
+            periodo
+        );
+
+    }catch(error){
+
+        console.error(
+            "Error cargando Firestore:",
+            error
+        );
+
+    }
+
+}
+
 const hoy =
     new Date();
 
@@ -883,10 +1030,102 @@ document.getElementById("anio")
     hoy.getFullYear();
 
 generarMes();
-cargarPeriodo();
 
-periodoActual =
-    obtenerPeriodo();
+periodoActual = obtenerPeriodo();
+
+</script>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+import {
+
+    getFirestore,
+
+    doc,
+
+    setDoc,
+
+    getDoc,
+
+    deleteDoc
+
+}
+
+from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+ 
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyCATIddYi740alPZN2pclQC3kdprVIlRfs",
+
+    authDomain: "control-horario-fef24.firebaseapp.com",
+
+    projectId: "control-horario-fef24",
+
+    storageBucket: "control-horario-fef24.firebasestorage.app",
+
+    messagingSenderId: "280269536972",
+
+    appId: "1:280269536972:web:9f305847ef3506af4d8c69",
+
+    measurementId: "G-9D9EY1YDHG"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+window.db = db;
+
+window.doc = doc;
+
+window.setDoc = setDoc;
+
+window.getDoc = getDoc;
+
+window.deleteDoc = deleteDoc;
+
+console.log("Firebase conectado");
+
+if (typeof cargarPeriodoFirebase === "function") {
+    cargarPeriodoFirebase();
+}
+
+const pruebaFirestore = async () => {
+
+  try {
+
+    const documento = doc(
+      db,
+      "pruebas",
+      "conexion"
+    );
+
+    await setDoc(documento, {
+      fecha: new Date().toISOString(),
+      mensaje: "Conexión OK"
+    });
+
+    console.log(
+      "Documento guardado en Firestore"
+    );
+
+  } catch(error) {
+
+    console.error(
+      "Error Firestore:",
+      error
+    );
+
+  }
+
+};
+
+pruebaFirestore();
 
 </script>
 

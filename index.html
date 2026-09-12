@@ -1076,6 +1076,8 @@ window.signOut = signOut;
 
 window.loginGoogle = async function(){
 
+    alert("Entró al login");
+
     try{
 
         const provider =
@@ -1086,7 +1088,11 @@ window.loginGoogle = async function(){
                 navigator.userAgent
             );
 
+        alert("Es móvil: " + esMovil);
+
         if(esMovil){
+
+            alert("Usando Redirect");
 
             await signInWithRedirect(
                 auth,
@@ -1094,6 +1100,8 @@ window.loginGoogle = async function(){
             );
 
         }else{
+
+            alert("Usando Popup");
 
             await signInWithPopup(
                 auth,
@@ -1103,10 +1111,9 @@ window.loginGoogle = async function(){
 
     }catch(error){
 
-        console.error(
-            "Error Login:",
-            error
-        );
+        alert(error.message);
+
+        console.error(error);
 
     }
 

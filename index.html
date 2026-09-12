@@ -1093,8 +1093,6 @@ window.signOut = signOut;
 
 window.loginGoogle = async function(){
 
-    alert("Entró al login");
-
     try{
 
         const provider =
@@ -1105,11 +1103,7 @@ window.loginGoogle = async function(){
                 navigator.userAgent
             );
 
-        alert("Es móvil: " + esMovil);
-
         if(esMovil){
-
-            alert(window.location.origin);
 
             await signInWithRedirect(
                 auth,
@@ -1154,6 +1148,11 @@ window.logout = async function(){
 };
 
 onAuthStateChanged(auth, async (user)=>{
+
+    alert(
+    "AUTH = " +
+    (user ? user.email : "NULL")
+);
 
     if(!user){
 

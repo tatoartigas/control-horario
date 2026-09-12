@@ -938,11 +938,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
-  onAuthStateChanged,
-  signInWithRedirect,
-  getRedirectResult,
-  browserLocalPersistence,
-  setPersistence
+  onAuthStateChanged
 }
 from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
@@ -959,44 +955,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-await setPersistence(
-    auth,
-    browserLocalPersistence
-);
-
 const db = getFirestore(app);
-
-try {
-
-    const result =
-        await getRedirectResult(auth);
-        console.log(
-    "RedirectResult completo:",
-    result
-        );
-
-        if(result){
-
-            alert(
-                "LOGIN OK: " +
-                result.user.email
-            );
-
-        }else{
-
-            alert(
-                "LOGIN NULL"
-            );
-
-        }
-   
-} catch(error){
-
-    alert(
-        "Redirect Error: " +
-        error.message
-    );
-}
 
 window.db = db;
 window.doc = doc;
@@ -1052,8 +1011,6 @@ window.logout = async function(){
 };
 
 onAuthStateChanged(auth, async (user)=>{
-
-    console.log("onAuthStateChanged", user);
     if(!user){
 
         document.getElementById(

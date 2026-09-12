@@ -448,9 +448,9 @@ function actualizarTipoDia(){
 
                 entrada.disabled = true;
                 real.disabled = true;
-				
-				fila.querySelector(".saldo").textContent = "";
-				fila.querySelector(".acumulado").textContent ="";
+
+                fila.querySelector(".saldo").textContent = "";
+                fila.querySelector(".acumulado").textContent ="";
 
             }else if(tipo.value === "feriado"){
 
@@ -460,15 +460,33 @@ function actualizarTipoDia(){
                 entrada.disabled = true;
                 real.disabled = true;
 
-            }else{
+                        }else{
 
-				entrada.disabled = false;
-				real.disabled = false;
-			}
+                if(
+                    tipo.dataset.anterior === "licencia" ||
+                    tipo.dataset.anterior === "feriado"
+                ){
+                    entrada.value = "";
+                    real.value = "";
+
+                    fila.querySelector(".minima").textContent = "";
+                    fila.querySelector(".objetivo").textContent = "";
+                    fila.querySelector(".saldo").textContent = "";
+                    fila.querySelector(".acumulado").textContent = "";
+                }
+
+                entrada.disabled = false;
+                real.disabled = false;
+            }
+
+            tipo.dataset.anterior =
+                tipo.value;
+
         });
 
     recalcular();
 }
+
 function recalcular(){
 
     let filas =

@@ -314,8 +314,6 @@ function cargarPeriodo(){
 
 async function cambiarPeriodo(){
 
-    guardarPeriodo();
-
     await guardarPeriodoFirebase();
 
     generarMes();
@@ -551,7 +549,6 @@ function actualizarTipoDia(){
         });
 
     recalcular();
-	guardarPeriodo();
 }
 function recalcular(){
 
@@ -799,8 +796,6 @@ document.addEventListener(
 
         recalcular();
 
-        guardarPeriodo();
-
         guardarPeriodoFirebase();
     }
 );
@@ -823,7 +818,6 @@ document.addEventListener(
     "change",
     function(e){
 
-        guardarPeriodo();
 
         if(
             e.target.classList.contains(
@@ -1096,7 +1090,7 @@ window.logout = async function(){
 
 };
 
-onAuthStateChanged(auth, (user)=>{
+onAuthStateChanged(auth, async (user)=>{
 
     if(!user){
 
@@ -1110,6 +1104,7 @@ onAuthStateChanged(auth, (user)=>{
 
         return;
     }
+
 
     document.getElementById("usuario").innerHTML = `
         <div style="
@@ -1140,6 +1135,7 @@ onAuthStateChanged(auth, (user)=>{
         </div>
         `;
     window.usuarioActual = user;
+    await cargarPeriodoFirebase();
 
 });
 

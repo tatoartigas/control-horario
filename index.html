@@ -1018,29 +1018,23 @@ window.loginGoogle = async function(){
         const provider =
             new GoogleAuthProvider();
 
-        const esMovil =
-            /Android|iPhone|iPad|iPod/i.test(
-                navigator.userAgent
-            );
-
-        if(esMovil){
-
-            await signInWithRedirect(
-                auth,
-                provider
-            );
-
-        }else{
-
+        const resultado =
             await signInWithPopup(
                 auth,
                 provider
             );
-        }
+
+        console.log(
+            "Login OK",
+            resultado.user.email
+        );
 
     }catch(error){
 
-        alert(error.message);
+        alert(
+            error.code + "\n" +
+            error.message
+        );
 
         console.error(error);
 

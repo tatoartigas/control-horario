@@ -860,10 +860,20 @@ async function cargarPeriodoFirebase(){
 
         if(!documento.exists()){
 
-            console.log(
-                "No existe información para",
-                periodo
-            );
+            document
+                .querySelectorAll(
+                    "#tabla tbody tr:not(.semana)"
+                )
+                .forEach(fila => {
+
+                    fila.querySelector(".tipoDia").value = "normal";
+                    fila.querySelector(".entrada").value = "";
+                    fila.querySelector(".real").value = "";
+
+                });
+
+            actualizarTipoDia();
+            recalcular();
 
             return;
         }

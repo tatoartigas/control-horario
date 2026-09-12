@@ -970,6 +970,25 @@ try {
 
     const result =
         await getRedirectResult(auth);
+        console.log(
+    "RedirectResult completo:",
+    result
+        );
+
+        if(result){
+
+            alert(
+                "LOGIN OK: " +
+                result.user.email
+            );
+
+        }else{
+
+            alert(
+                "LOGIN NULL"
+            );
+
+        }
    
 } catch(error){
 

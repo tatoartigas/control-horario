@@ -1019,7 +1019,9 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signInWithRedirect,
+  getRedirectResult
 }
 from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
@@ -1036,6 +1038,28 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+try {
+
+    const result = await getRedirectResult(auth);
+
+    if(result){
+
+        console.log(
+            "Login Google OK",
+            result.user.email
+        );
+
+    }
+
+} catch(error){
+
+    console.error(
+        "Error Redirect:",
+        error
+    );
+
+}
 
 window.db = db;
 window.doc = doc;
@@ -1057,10 +1081,25 @@ window.loginGoogle = async function(){
         const provider =
             new GoogleAuthProvider();
 
-        await signInWithPopup(
-            auth,
-            provider
-        );
+        const esMovil =
+            /Android|iPhone|iPad|iPod/i.test(
+                navigator.userAgent
+            );
+
+        if(esMovil){
+
+            await signInWithRedirect(
+                auth,
+                provider
+            );
+
+        }else{
+
+            await signInWithPopup(
+                auth,
+                provider
+            );
+        }
 
     }catch(error){
 

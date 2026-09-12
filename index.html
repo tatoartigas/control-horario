@@ -231,87 +231,6 @@ function obtenerPeriodo(){
     return `${anio}-${mes}`;
 }
 
-function guardarPeriodo(){
-
-    if(!periodoActual){
-        periodoActual =
-            obtenerPeriodo();
-    }
-
-    document
-        .querySelectorAll(
-            "#tabla tbody tr"
-        )
-        .forEach(fila=>{
-
-            if(
-                fila.classList.contains("semana")
-            ){
-                return;
-            }
-
-            bd[periodoActual].push({
-
-                tipo:
-                    fila.querySelector(".tipoDia")
-                        .value,
-
-                entrada:
-                    fila.querySelector(".entrada")
-                        .value,
-
-                salida:
-                    fila.querySelector(".real")
-                        .value
-            });
-        });    
-}
-
-function cargarPeriodo(){
-
-    const periodo =
-        obtenerPeriodo();
-
-    if(!bd[periodo]){
-
-		recalcular();
-
-		return;
-	}
-
-    const filas =
-        document.querySelectorAll(
-            "#tabla tbody tr:not(.semana)"
-        );
-
-    bd[periodo].forEach(
-        (registro,index)=>{
-
-            if(!filas[index]){
-                return;
-            }
-
-            filas[index]
-                .querySelector(".tipoDia")
-                .value =
-                registro.tipo;
-
-            filas[index]
-                .querySelector(".entrada")
-                .value =
-                registro.entrada;
-
-            filas[index]
-                .querySelector(".real")
-                .value =
-                registro.salida;
-        }
-    );
-
-    actualizarTipoDia();
-    recalcular();
-}
-
 async function cambiarPeriodo(){
 
     await guardarPeriodoFirebase();
@@ -1051,12 +970,7 @@ try {
 
     const result =
         await getRedirectResult(auth);
-
-    alert(
-        "RedirectResult: " +
-        (result ? "OK" : "NULL")
-    );
-
+   
 } catch(error){
 
     alert(
@@ -1134,11 +1048,7 @@ window.logout = async function(){
 
 onAuthStateChanged(auth, async (user)=>{
 
-    alert(
-    "AUTH = " +
-    (user ? user.email : "NULL")
-);
-
+    console.log("onAuthStateChanged", user);
     if(!user){
 
         document.getElementById(

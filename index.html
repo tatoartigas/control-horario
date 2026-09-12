@@ -1018,25 +1018,17 @@ window.loginGoogle = async function(){
         const provider =
             new GoogleAuthProvider();
 
-        const resultado =
-            await signInWithPopup(
-                auth,
-                provider
-            );
-
-        console.log(
-            "Login OK",
-            resultado.user.email
+        await signInWithPopup(
+            auth,
+            provider
         );
 
     }catch(error){
 
-        alert(
-            error.code + "\n" +
-            error.message
+        console.error(
+            "Error Login:",
+            error
         );
-
-        console.error(error);
 
     }
 

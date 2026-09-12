@@ -1037,6 +1037,23 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+try {
+
+    const result =
+        await getRedirectResult(auth);
+
+    alert(
+        "RedirectResult: " +
+        (result ? "OK" : "NULL")
+    );
+
+} catch(error){
+
+    alert(
+        "Redirect Error: " +
+        error.message
+    );
+}
 const db = getFirestore(app);
 
 try {
@@ -1092,7 +1109,7 @@ window.loginGoogle = async function(){
 
         if(esMovil){
 
-            alert("Usando Redirect");
+            alert(window.location.origin);
 
             await signInWithRedirect(
                 auth,
